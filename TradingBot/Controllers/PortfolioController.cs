@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using TradingBotAPI.Models;
 
 namespace TradingBot.Controllers
@@ -21,10 +22,14 @@ namespace TradingBot.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                var data = await response.Content.ReadAsAsync<IEnumerable<ConnectionAuth>>();
+                var content = await response.Content.ReadAsStringAsync();
+                var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
                 // Use data as needed, pass it to your view, etc.
+
+                return View(); // Pass data to the view
             }
-            return View();
+
+            return View("Error"); // Return an error view or another appropriate response if the request was not successful.
         }
         
         public async Task<IActionResult> CreatePortfolioPage()
@@ -35,10 +40,14 @@ namespace TradingBot.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                var data = await response.Content.ReadAsAsync<IEnumerable<ConnectionAuth>>();
+                var content = await response.Content.ReadAsStringAsync();
+                var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
                 // Use data as needed, pass it to your view, etc.
+
+                return View(); // Pass data to the view
             }
-            return View();
+
+            return View("Error"); // Return an error view or another appropriate response if the request was not successful.
         }
     }   
 }

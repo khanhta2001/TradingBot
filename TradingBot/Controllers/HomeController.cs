@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using TradingBotAPI.Models;
 
 namespace TradingBot.Controllers
@@ -13,7 +14,15 @@ namespace TradingBot.Controllers
             _logger = logger;
         }
         
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("")]
         public IActionResult HomePage()
+        {
+            return View();
+        }
+        
+        public IActionResult Privacy()
         {
             return View();
         }
@@ -26,10 +35,15 @@ namespace TradingBot.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                var data = await response.Content.ReadAsAsync<IEnumerable<ConnectionAuth>>();
+                var content = await response.Content.ReadAsStringAsync();
+                var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
                 // Use data as needed, pass it to your view, etc.
+
+                return View("NotificationsPage", data); // Pass data to the view
             }
-            return View("NotificationsPage", "Home");
+
+            return View("Error"); // Return an error view or another appropriate response if the request was not successful.
         }
+
     }   
 }
