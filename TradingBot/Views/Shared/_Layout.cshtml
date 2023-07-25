@@ -1,13 +1,14 @@
 ﻿@using Microsoft.AspNetCore.Http;
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TradingBot</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true"/>
-    <link rel="stylesheet" href="~/WebApp.styles.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WebApp.styles.css" asp-append-version="true" />
 </head>
 <body>
 <header>
@@ -15,14 +16,14 @@
         <div class="container-fluid">
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-start">
                 <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="HomePage">Categories</a>
-                    </li>
                     @if (this.User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="HomePage">Create Recipe</a>
-                        </li>   
+                            <a class="nav-link text-dark" href="@this.Url.Action("PortfolioPage", "Portfolio")">Portfolio Page</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="@this.Url.Action("CreatePortfolioPage", "Portfolio")">Portfolio Page</a>
+                        </li>
                     }
                 </ul>
             </div>
@@ -34,7 +35,7 @@
                 </ul>
             </div>
             <div class="navbar-collapse d-flex justify-content-end">
-                <ul class="navbar-nav flex-column-reverse-1">
+                <ul class="navbar-nav">
                     @if (this.User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item">
@@ -50,8 +51,8 @@
                             <a class="nav-link text-dark" href="@this.Url.Action("RegisterPage", "User")">Register</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="@this.Url.Action("LoginPage", "User")">Login</a> 
-                        </li>   
+                            <a class="nav-link text-dark" href="@this.Url.Action("LoginPage", "User")">Login</a>
+                        </li>
                     }
                 </ul>
             </div>
@@ -63,7 +64,6 @@
         @RenderBody()
     </main>
 </div>
-
 <footer class="border-top footer text-muted">
     <div class="container">
         &copy; 2023 - TradingBot - <a href="@this.Url.Action("Privacy", "Home")">Privacy</a>
@@ -73,5 +73,6 @@
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/script.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

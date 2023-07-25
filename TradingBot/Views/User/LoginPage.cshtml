@@ -10,7 +10,7 @@
                         <h1>Login</h1>
                     </div>
                     <div class="card-body">
-                        <form action="/User/Login" method="post">
+                        <form asp-controller="User" asp-action="Login" method="post">
                             <div class="form-group">
                                 <label for="Username">Username</label>
                                 <input type="text" class="form-control" id="Username" name="Username" required>
@@ -26,5 +26,4 @@
             </div>
         </div>
     </div>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>

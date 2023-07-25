@@ -13,7 +13,9 @@ namespace TradingBot.Controllers
         {
             _logger = logger;
         }
-        
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("PortfolioPage")]
         public async Task<IActionResult> PortfolioPage()
         {
             var client = new HttpClient();
@@ -26,13 +28,24 @@ namespace TradingBot.Controllers
                 var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
                 // Use data as needed, pass it to your view, etc.
 
-                return View(); // Pass data to the view
+                return View(); 
             }
 
-            return View("Error"); // Return an error view or another appropriate response if the request was not successful.
+            return View("Error");
         }
         
-        public async Task<IActionResult> CreatePortfolioPage()
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("CreatePortfolioPage")]
+        public IActionResult CreatePortfolioPage()
+        {
+            return View();
+        }
+        
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("CreatePortfolio")]
+        public async Task<IActionResult> CreatePortfolio()
         {
             var client = new HttpClient();
             client.BaseAddress = new Uri("http://your-api-url.com/");
@@ -44,10 +57,10 @@ namespace TradingBot.Controllers
                 var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
                 // Use data as needed, pass it to your view, etc.
 
-                return View(); // Pass data to the view
+                return this.RedirectToAction("PortfolioPage", "Portfolio"); 
             }
 
-            return View("Error"); // Return an error view or another appropriate response if the request was not successful.
+            return View("Error");
         }
     }   
 }

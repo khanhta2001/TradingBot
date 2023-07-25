@@ -1,12 +1,53 @@
 ﻿@{
     Layout = "_Layout";
 }
-<div>
-    <div>
-        <h1> Automated Portfolio</h1>
-        <h2> A personal project that connects with the ETrade trading platform to conduct your portfolio mamangement</h2>
-        <p> As said, this is not a financial advice that helps with growing your portfolio and I'm in no way a financial advisor or I can help you grow your portfolio. 
-            This is simply a automated portfolio management that I develop myself to avoid hiring a personal financial investor or paying fees to other platforms for this.
+
+<section class="portfolio-section">
+    <header>
+        <h1>Automated Portfolio</h1>
+        <h2>Connect with the ETrade trading platform for automated portfolio management.</h2>
+    </header>
+    
+    <article>
+        <p>
+            This project was born out of a personal need for automated portfolio management. While it connects seamlessly with ETrade, it's worth noting that this is <strong>not financial advice</strong>.
         </p>
-    </div>
-</div>
+        
+        <p>
+            I am neither a financial advisor nor am I promising portfolio growth. My intent was to develop an automated solution, saving myself from hiring a financial investor or incurring fees on other platforms.
+        </p>
+    </article>
+</section>
+
+<style>
+    .portfolio-section {
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+    }
+
+    .portfolio-section header {
+        margin-bottom: 20px;
+    }
+
+    .portfolio-section h1 {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+
+    .portfolio-section h2 {
+        font-size: 1.5em;
+        color: #666;
+    }
+
+    .portfolio-section p {
+        font-size: 1em;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+
+    .portfolio-section strong {
+        color: #f00;
+    }
+</style>
+
