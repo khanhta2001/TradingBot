@@ -37,12 +37,11 @@ namespace TradingBot.Controllers
             {
                 var content = await response.Content.ReadAsStringAsync();
                 var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
-                // Use data as needed, pass it to your view, etc.
 
-                return View("NotificationsPage", data); // Pass data to the view
+                return View("NotificationsPage", data);
             }
 
-            return View("Error"); // Return an error view or another appropriate response if the request was not successful.
+            return View("Error");
         }
 
     }   

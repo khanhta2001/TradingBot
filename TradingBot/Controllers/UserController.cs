@@ -18,17 +18,20 @@ namespace TradingBot.Controllers
             _signInManager = signInManager;
         }
         
-        public async Task<IActionResult> UserAccount()
+        public async Task<IActionResult> UserAccount(string userName)
         {
             var client = new HttpClient();
             client.BaseAddress = new Uri("https://localhost:7052/");
-            var response = await client.GetAsync("api/UserAccount");
+            var response = await client.GetAsync($"api/UserAccount/{userName}");
             
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
-
+    
+                // Deserialize the JSON to a single UserAccount object
+                var data = JsonConvert.DeserializeObject<UserAccount>(content);
+    
+                // Pass the single UserAccount object to the view
                 return View("UserAccount", data); 
             }
 
@@ -62,12 +65,11 @@ namespace TradingBot.Controllers
             {
                 var content = await response.Content.ReadAsStringAsync();
                 var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
-                // Use data as needed, pass it to your view, etc.
                 await _signInManager.SignInAsync(userAccount, isPersistent: false);
-                return this.RedirectToAction("HomePage", "Home"); // Pass data to the view
+                return this.RedirectToAction("HomePage", "Home");
             }
 
-            return View("Error"); // Return an error view or another appropriate response if the request was not successful.
+            return View("Error");
         }
         
         [AllowAnonymous]
@@ -84,7 +86,7 @@ namespace TradingBot.Controllers
         public async Task<IActionResult> Register(string username, string email, string password, string passwordConfirm)
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:7052/"); // or use http://localhost:5010/ if needed
+            client.BaseAddress = new Uri("https://localhost:7052/");
             var userAccount = new UserAccount()
             {
                 UserName = username,
@@ -98,12 +100,42 @@ namespace TradingBot.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                // Use data as needed, pass it to your view, etc.
-
                 return this.RedirectToAction("LoginPage", "User");
             }
 
             return View("RegisterPage");
+        }
+        
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("EditConsumerDetails")]
+        public IActionResult EditConsumerDetails(string consumerKey, string consumerSecret)
+        {
+
+            var viewModel = new ConnectionAuth
+            {
+                ConsumerKey = consumerKey,
+                ConsumerSecret = consumerSecret
+            };
+            return View("RegisterPage", viewModel);
+        }
+        
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("EditConsumerDetails")]
+        public IActionResult EditConsumerDetails(ConnectionAuth model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Save the new ConsumerKey and ConsumerSecret to your data source.
+                // Example:
+                // _yourRepository.UpdateConsumerDetails(model);
+
+                return RedirectToAction("HomePage", "Home");
+            }
+
+            // If the model is not valid, return back to the edit page with the same model.
+            return View(model);
         }
         
     }   

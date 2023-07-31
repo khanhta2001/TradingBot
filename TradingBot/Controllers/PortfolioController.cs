@@ -19,19 +19,17 @@ namespace TradingBot.Controllers
         public async Task<IActionResult> PortfolioPage()
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri("http://your-api-url.com/");
-            var response = await client.GetAsync("api/your-endpoint");
-
+            client.BaseAddress = new Uri("https://localhost:7052/");
+            var response = await client.GetAsync("api/Portfolio");
+            
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
                 var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
-                // Use data as needed, pass it to your view, etc.
 
                 return View(); 
             }
-
-            return View("Error");
+            return View();
         }
         
         [AllowAnonymous]
@@ -48,14 +46,13 @@ namespace TradingBot.Controllers
         public async Task<IActionResult> CreatePortfolio()
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri("http://your-api-url.com/");
-            var response = await client.GetAsync("api/your-endpoint");
+            client.BaseAddress = new Uri("https://localhost:7052/");
+            var response = await client.GetAsync("api/CreatePortfolio");
 
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
                 var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
-                // Use data as needed, pass it to your view, etc.
 
                 return this.RedirectToAction("PortfolioPage", "Portfolio"); 
             }

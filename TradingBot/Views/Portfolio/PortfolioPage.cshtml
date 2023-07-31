@@ -1,8 +1,39 @@
+@model TradingBotAPI.Models.Portfolio
 @{
     Layout = "_Layout";
 }
-<div class="container">
-    <div>
-        
-    </div>
+
+<div class="container mt-5">
+    <h2>My Portfolio</h2>
+
+    @if (Model is {Stocks: not null } && Model.Stocks.Any())
+    {
+        <table class="table table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Stock Symbol</th>
+                    <th scope="col">Current Price</th>
+                    <th scope="col">Quantity Owned</th>
+                    <th scope="col">Total Value</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var stock in Model.Stocks)
+            {
+                <tr>
+                    <td>@stock.Symbol</td>
+                    <td>@stock.CurrentPrice.ToString()</td>
+                    <td>@stock.QuantityOwned</td>
+                    <td>@stock.TotalValue.ToString()</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            You currently have no stocks in your portfolio.
+        </div>
+    }
 </div>

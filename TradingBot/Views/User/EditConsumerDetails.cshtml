@@ -1,0 +1,24 @@
+@model TradingBotAPI.Models.ConnectionAuth
+@{
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <h2>Edit Consumer Details</h2>
+    <hr />
+    
+    <form asp-controller="User" asp-action="EditConsumerDetails" method="post">
+        <div class="mb-3">
+            <label for="ConsumerKey" class="form-label">Consumer Key:</label>
+            <input type="text" class="form-control" id="ConsumerKey" name="ConsumerKey" value="@Model.ConsumerKey" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="ConsumerSecret" class="form-label">Consumer Secret:</label>
+            <input type="text" class="form-control" id="ConsumerSecret" name="ConsumerSecret" value="@Model.ConsumerSecret" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="@Url.Action("UserAccount", "User")" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
