@@ -1,27 +1,22 @@
 using AspNetCore.Identity.Mongo;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using TradingBotAPI.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.Serialization.Serializers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddIdentityMongoDbProvider<UserAccount>(
-    identityOptions =>
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
     {
-        identityOptions.Password.RequireDigit = true;
-        identityOptions.Password.RequiredLength = 8;
-        identityOptions.Password.RequireNonAlphanumeric = true;
-        identityOptions.Password.RequireUppercase = true;
-        identityOptions.Password.RequireLowercase = true;
-        identityOptions.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
-        identityOptions.Lockout.MaxFailedAccessAttempts = 10;
-    },
-    mongoIdentityOptions =>
-    {
-        var configuration = builder.Configuration;
-        mongoIdentityOptions.ConnectionString = configuration.GetSection("MongoDB:ConnectionUrl").Value;
+        options.LoginPath = "/User/login";
+        options.LogoutPath = "/User/logout";
+        options.AccessDeniedPath = "/access_denied";
     });
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -36,6 +31,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

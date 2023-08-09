@@ -3,33 +3,41 @@
 }
 
 <div class="container mt-4">
-
-    <!-- Step 1: Search and Select Stocks -->
     <div id="step1">
-        <h3>Step 1: Search for a stock</h3>
+        <h3>Step 1: Create Portfolio</h3>
+        <div class="form-group">
+            <input id="PortfolioName" type="text" class="form-control" placeholder="Name your Portfolio" />
+        </div>
+        <div id="portfolioName" class="mb-3"></div>
+        <button id="nextToStep2" class="btn btn-primary">Next</button>
+    </div>
+    <!-- Step 1: Search and Select Stocks -->
+    <div id="step2">
+        <h3>Step 2: Search for a stock</h3>
         <div class="form-group">
             <input id="searchResultsInput" type="text" class="form-control" placeholder="Search for a stock" />
         </div>
         <div id="searchResults" class="mb-3"></div>
-        <button id="nextToStep2" class="btn btn-primary">Next</button>
+        <button id="backToStep1" class="btn btn-secondary">Back</button>
+        <button id="nextToStep3" class="btn btn-primary">Next</button>
     </div>
 
     <!-- Step 2: Review Selected Stocks and Input Numbers -->
-    <div id="step2" style="display: none;">
-        <h3>Step 2: Review Selected Stocks</h3>
+    <div id="step3" style="display: none;">
+        <h3>Step 3: Review Selected Stocks</h3>
 
         <div class="d-flex justify-content-between mt-3">
-            <button id="backToStep1" class="btn btn-secondary">Back</button>
-            <button id="nextToStep3" class="btn btn-primary">Next</button>
+            <button id="backToStep2" class="btn btn-secondary">Back</button>
+            <button id="nextToStep4" class="btn btn-primary">Next</button>
         </div>
     </div>
 
     <!-- Step 3: Confirm and Submit -->
-    <div id="step3" style="display: none;">
-        <h3>Step 3: Confirmation</h3>
+    <div id="step4" style="display: none;">
+        <h3>Step 4: Confirmation</h3>
 
         <div class="d-flex justify-content-between mt-3">
-            <button id="backToStep2" class="btn btn-secondary">Back</button>
+            <button id="backToStep3" class="btn btn-secondary">Back</button>
             <button id="submit" class="btn btn-success">Submit</button>
         </div>
     </div>
@@ -38,24 +46,37 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $("#nextToStep2").click(function () {
+            $("#step1").show();
+            $("#step2, #step3, #step4").hide();
+            
+             $("#nextToStep2").click(function () {
                 $("#step1").hide();
                 $("#step2").show();
-            });
-
+             });
+        
             $("#backToStep1").click(function () {
                 $("#step2").hide();
                 $("#step1").show();
             });
-
+        
             $("#nextToStep3").click(function () {
                 $("#step2").hide();
                 $("#step3").show();
             });
-
+        
             $("#backToStep2").click(function () {
                 $("#step3").hide();
                 $("#step2").show();
+            });
+        
+            $("#nextToStep4").click(function () {
+                $("#step3").hide();
+                $("#step4").show();
+            });
+        
+            $("#backToStep3").click(function () {
+                $("#step4").hide();
+                $("#step3").show();
             });
 
             $("#submit").click(function () {

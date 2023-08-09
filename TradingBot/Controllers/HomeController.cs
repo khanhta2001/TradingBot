@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using MongoDB.Bson.Serialization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using TradingBotAPI.Models;
 
 namespace TradingBot.Controllers
@@ -29,6 +28,7 @@ namespace TradingBot.Controllers
         
         public async Task<IActionResult> NotificationsPage()
         {
+            return View("NotificationsPage");
             var client = new HttpClient();
             client.BaseAddress = new Uri("http://your-api-url.com/");
             var response = await client.GetAsync("api/your-endpoint");
@@ -36,8 +36,7 @@ namespace TradingBot.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
-
+                var data = BsonSerializer.Deserialize<Portfolio>(content);
                 return View("NotificationsPage", data);
             }
 

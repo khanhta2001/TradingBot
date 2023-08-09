@@ -1,9 +1,13 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using TradingBotAPI.Models;
-using Newtonsoft.Json;
+using MongoDB.Bson.Serialization;
 
 namespace TradingBot.Controllers
 {
@@ -11,32 +15,27 @@ namespace TradingBot.Controllers
     {
         private readonly ILogger<UserController> _logger;
         
-        private readonly SignInManager<UserAccount> _signInManager;
-        public UserController(ILogger<UserController> logger, SignInManager<UserAccount> signInManager)
+        public UserController(ILogger<UserController> logger)
         {
             _logger = logger;
-            _signInManager = signInManager;
         }
         
         public async Task<IActionResult> UserAccount(string userName)
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:7052/");
-            var response = await client.GetAsync($"api/UserAccount/{userName}");
-            
-            if (response.IsSuccessStatusCode)
-            {
-                var content = await response.Content.ReadAsStringAsync();
-    
-                // Deserialize the JSON to a single UserAccount object
-                var data = JsonConvert.DeserializeObject<UserAccount>(content);
-    
-                // Pass the single UserAccount object to the view
-                return View("UserAccount", data); 
-            }
+            var response = await client.GetAsync($"https://localhost:7052/AccountInfo/UserAccount?userName={userName}");
 
-            return View("Error");
+            if (!response.IsSuccessStatusCode) return View("Error");
+            var content = await response.Content.ReadAsStringAsync();
+    
+            // Deserialize the JSON to a single UserAccount object
+            var data = BsonSerializer.Deserialize<Account>(content);
+    
+            // Pass the single UserAccount object to the view
+            return View("UserAccount", data);
+
         }
+        
         [AllowAnonymous]
         [HttpGet]
         [Route("LoginPage")]
@@ -51,25 +50,52 @@ namespace TradingBot.Controllers
         public async Task<IActionResult> Login(string username, string password)
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:7052/");
-            var userAccount = new UserAccount()
+            var userAccount = new Account()
             {
                 UserName = username,
-                Password = password
+                Email = "no one cares",
+                PasswordHash = password,
+                VerificationCode = "Verified",
+                ConnectionAuth = new ConnectionAuth()
+                {
+                    ConsumerKey = "None",
+                    ConsumerSecret = "None",
+                    VerificationCode = "None",
+                    OAuthToken = "None",
+                    OAuthTokenSecret = "none",
+                    DailyToken = "None"
+                }
             };
-            var json = JsonConvert.SerializeObject(userAccount);
+            var json = userAccount.ToJson();
             var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync("AccountInfo/LoginAccount", stringContent);
-            if (response.IsSuccessStatusCode)
+            var response = await client.PostAsync("https://localhost:7052/AccountInfo/LoginAccount", stringContent);
+            
+            if (!response.IsSuccessStatusCode) return View("Error");
+            var content = await response.Content.ReadAsStringAsync();
+            var user = BsonSerializer.Deserialize<Account>(content);
+            var claims = new List<Claim>
             {
-                var content = await response.Content.ReadAsStringAsync();
-                var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
-                await _signInManager.SignInAsync(userAccount, isPersistent: false);
-                return this.RedirectToAction("HomePage", "Home");
-            }
+                new Claim("UserId", "User Controller"),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, "User"),
+            };
 
-            return View("Error");
+            var claimsIdentity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await this.HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    AllowRefresh = true,
+                }).ConfigureAwait(false);
+
+            return this.RedirectToAction("HomePage", "Home");
+
         }
         
         [AllowAnonymous]
@@ -86,24 +112,49 @@ namespace TradingBot.Controllers
         public async Task<IActionResult> Register(string username, string email, string password, string passwordConfirm)
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:7052/");
-            var userAccount = new UserAccount()
+            
+            var passwordHasher = new PasswordHasher<string>();
+            if (password != passwordConfirm)
+            {
+                return View("RegisterPage");
+            }
+            var userAccount = new Account()
             {
                 UserName = username,
                 Email = email,
-                Password = password,
+                PasswordHash = password,
+                VerificationCode = "Verified",
+                ConnectionAuth = new ConnectionAuth()
+                {
+                    ConsumerKey = "None",
+                    ConsumerSecret = "None",
+                    VerificationCode = "None",
+                    OAuthToken = "None",
+                    OAuthTokenSecret = "none",
+                    DailyToken = "None"
+                }
             };
-            var json = JsonConvert.SerializeObject(userAccount);
+            var json = userAccount.ToJson();
             var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync("AccountInfo/RegisterAccount", stringContent);
-
+            var response = await client.PostAsync("https://localhost:7052/AccountInfo/RegisterAccount", stringContent);
+            
             if (response.IsSuccessStatusCode)
             {
                 return this.RedirectToAction("LoginPage", "User");
             }
 
             return View("RegisterPage");
+        }
+        
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await this.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme).ConfigureAwait(false);
+
+            return this.RedirectToAction("HomePage", "Home");
         }
         
         [AllowAnonymous]

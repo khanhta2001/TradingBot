@@ -14,7 +14,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.12" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.12" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.12" />
-        <PackageReference Include="tradingbotapi" Version="1.6.4" />
+        <PackageReference Include="MongoDB.Bson" Version="2.20.0" />
+        <PackageReference Include="tradingbotapi" Version="1.7.7" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using MongoDB.Bson.Serialization;
 using TradingBotAPI.Models;
 
 namespace TradingBot.Controllers
@@ -25,7 +24,7 @@ namespace TradingBot.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
+                var data = BsonSerializer.Deserialize<Portfolio>(content);
 
                 return View(); 
             }
@@ -52,8 +51,7 @@ namespace TradingBot.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
-                var data = JsonConvert.DeserializeObject<IEnumerable<ConnectionAuth>>(content);
-
+                var data = BsonSerializer.Deserialize<Portfolio>(content);
                 return this.RedirectToAction("PortfolioPage", "Portfolio"); 
             }
 

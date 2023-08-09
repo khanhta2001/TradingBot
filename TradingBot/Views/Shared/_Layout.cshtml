@@ -19,10 +19,10 @@
                     @if (this.User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="@this.Url.Action("PortfolioPage", "Portfolio")">Portfolio Page</a>
+                            <a class="nav-link text-dark" href="@this.Url.Action("PortfolioPage", "Portfolio")">Portfolio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="@this.Url.Action("CreatePortfolioPage", "Portfolio")">Portfolio Page</a>
+                            <a class="nav-link text-dark" href="@this.Url.Action("CreatePortfolioPage", "Portfolio")">Create Portfolio</a>
                         </li>
                     }
                 </ul>
@@ -36,13 +36,16 @@
             </div>
             <div class="navbar-collapse d-flex justify-content-end">
                 <ul class="navbar-nav">
-                    @if (this.User.Identity.IsAuthenticated)
+                    @if (User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item">
                             <a class="nav-link text-dark" href="@this.Url.Action("NotificationsPage", "Home")">Notifications</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="@this.Url.Action("UserAccount", "User")">@this.User.Identity.Name</a>
+                            <a class="nav-link text-dark" href="@this.Url.Action("UserAccount", "User", new { userName = User.Identity.Name})">@User.Identity.Name</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" href="@this.Url.Action("Logout", "User")">Logout</a>
                         </li>
                     }
                     else

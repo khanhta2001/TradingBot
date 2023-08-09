@@ -1,58 +1,35 @@
-@model TradingBotAPI.Models.UserAccount
+@model TradingBotAPI.Models.Account
 @{
     Layout = "_Layout";
 }
 
 <div class="container mt-5">
-    <h2>Welcome, @Model.UserName!</h2>
-    <hr />
-
-    @if (Model.Portfolio == null)
-    {
-        <div class="alert alert-warning">
-            You don't have a portfolio. <a href="@Url.Action("CreatePortfolioPage", "Portfolio")">Create one now</a>.
+    <div>
+        <h2>Welcome, @Model.UserName!</h2>
+    </div>
+    <div>
+        <div>
+            <a href="@Url.Action("EditConsumerDetails", "User")" class="btn btn-primary">Edit Details</a>
         </div>
-    }
-    else
-    {
-        <h4>Your Portfolio</h4>
-        <div class="mb-4">
-            <strong>Portfolio Name:</strong> @Model.Portfolio.PortfolioName
-            <!-- Add other portfolio details here -->
+        <div>
+            @if (string.IsNullOrEmpty(Model.ConnectionAuth.ConsumerKey) || Model.ConnectionAuth.ConsumerKey == "None")
+            {
+                <span>Consumer Key: Not Set</span>
+            }
+            else
+            {
+                <span>Consumer Key: @Model.ConnectionAuth.ConsumerKey</span>
+            }
         </div>
-    }
-
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#settingsModal">Settings</button>
-
-    <!-- Modal for showing ConnectionAuth details -->
-    <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                
-                <div class="modal-body">
-                    <strong>Consumer Key:</strong> 
-                    @if(string.IsNullOrEmpty(Model.ConnectionAuth.ConsumerKey))
-                    {
-                        <span>Not Set</span>
-                    }
-                    else
-                    {
-                        <span>@Model.ConnectionAuth.ConsumerKey</span>
-                    }
-                    <br />
-                </div>
-                
-                <div class="modal-footer">
-                    <a href="@Url.Action("EditConsumerDetails", "User")" class="btn btn-primary">Edit Details</a>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
+        <div>
+            @if (string.IsNullOrEmpty(Model.ConnectionAuth.ConsumerSecret) || Model.ConnectionAuth.ConsumerSecret == "None")
+            {
+                <span>Consumer Secret: Not Set</span>
+            }
+            else
+            {
+                <span>Consumer Secret: @Model.ConnectionAuth.ConsumerSecret</span>
+            }
         </div>
     </div>
 </div>
