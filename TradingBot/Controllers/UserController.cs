@@ -158,36 +158,37 @@ namespace TradingBot.Controllers
         }
         
         [AllowAnonymous]
-        [HttpGet]
+        [HttpPost]
         [Route("EditConsumerDetails")]
-        public IActionResult EditConsumerDetails(string consumerKey, string consumerSecret)
+        public async Task<IActionResult> EditConsumerDetails(string userName, string consumerKey, string consumerSecret)
         {
 
-            var viewModel = new ConnectionAuth
+            var connectionAuth = new ConnectionAuth
             {
                 ConsumerKey = consumerKey,
                 ConsumerSecret = consumerSecret
             };
-            return View("RegisterPage", viewModel);
-        }
-        
-        [AllowAnonymous]
-        [HttpPost]
-        [Route("EditConsumerDetails")]
-        public IActionResult EditConsumerDetails(ConnectionAuth model)
-        {
-            if (ModelState.IsValid)
+            var client = new HttpClient();
+            var connectionResponse = await client.GetAsync($"https://localhost:7052/Connection/GetConnection?connectionAuth={connectionAuth}");
+
+            if (!connectionResponse.IsSuccessStatusCode) return View("Error");
+            var connectionContent = await connectionResponse.Content.ReadAsStringAsync();
+    
+            // Deserialize the JSON to a single UserAccount object
+            var connectionData = BsonSerializer.Deserialize<Account>(connectionContent);
+            var userAccount = new Account()
             {
-                // Save the new ConsumerKey and ConsumerSecret to your data source.
-                // Example:
-                // _yourRepository.UpdateConsumerDetails(model);
+                UserName = userName,
+                ConnectionAuth = connectionAuth
+            };
+            var json = userAccount.ToJson();
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await client.PutAsync($"https://localhost:7052/AccountInfo/ChangeConsumerAuth", stringContent);
 
-                return RedirectToAction("HomePage", "Home");
-            }
-
-            // If the model is not valid, return back to the edit page with the same model.
-            return View(model);
+            if (!response.IsSuccessStatusCode) return View("Error");
+            var content = await response.Content.ReadAsStringAsync();
+    
+            return View("RegisterPage", content);
         }
-        
     }   
 }

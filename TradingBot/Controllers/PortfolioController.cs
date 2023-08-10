@@ -18,8 +18,7 @@ namespace TradingBot.Controllers
         public async Task<IActionResult> PortfolioPage()
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:7052/");
-            var response = await client.GetAsync("api/Portfolio");
+            var response = await client.GetAsync("https://localhost:7052/Portfolio");
             
             if (response.IsSuccessStatusCode)
             {
@@ -34,9 +33,18 @@ namespace TradingBot.Controllers
         [AllowAnonymous]
         [HttpGet]
         [Route("CreatePortfolioPage")]
-        public IActionResult CreatePortfolioPage()
+        public async Task<IActionResult> CreatePortfolioPage(string userName)
         {
-            return View();
+            var client = new HttpClient();
+            var response = await client.GetAsync($"https://localhost:7052/AccountInfo/UserAccount?userName={userName}");
+
+            if (!response.IsSuccessStatusCode) return View("Error");
+            var content = await response.Content.ReadAsStringAsync();
+    
+            // Deserialize the JSON to a single UserAccount object
+            var data = BsonSerializer.Deserialize<Account>(content);
+    
+            return View(data);
         }
         
         [AllowAnonymous]
@@ -45,8 +53,7 @@ namespace TradingBot.Controllers
         public async Task<IActionResult> CreatePortfolio()
         {
             var client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:7052/");
-            var response = await client.GetAsync("api/CreatePortfolio");
+            var response = await client.GetAsync("https://localhost:7052/CreatePortfolio");
 
             if (response.IsSuccessStatusCode)
             {

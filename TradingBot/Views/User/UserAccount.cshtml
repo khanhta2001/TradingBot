@@ -7,29 +7,55 @@
     <div>
         <h2>Welcome, @Model.UserName!</h2>
     </div>
-    <div>
-        <div>
-            <a href="@Url.Action("EditConsumerDetails", "User")" class="btn btn-primary">Edit Details</a>
+        <div class="mb-3 d-flex justify-content-end">
+            <button id="editButton" class="btn btn-primary">Edit</button>
         </div>
-        <div>
-            @if (string.IsNullOrEmpty(Model.ConnectionAuth.ConsumerKey) || Model.ConnectionAuth.ConsumerKey == "None")
-            {
-                <span>Consumer Key: Not Set</span>
-            }
-            else
-            {
-                <span>Consumer Key: @Model.ConnectionAuth.ConsumerKey</span>
-            }
+    <form method="post" action="@Url.Action("EditConsumerDetails", "User")">
+        <table class="table">
+            <tbody>
+                <tr>
+                    <td>Consumer Key</td>
+                    <td>
+                        @if (string.IsNullOrEmpty(Model.ConnectionAuth.ConsumerKey) || Model.ConnectionAuth.ConsumerKey == "None")
+                        {
+                            <span id="consumerKeySpan">Not Set</span>
+                        }
+                        else
+                        {
+                            <span id="consumerKeySpan">@Model.ConnectionAuth.ConsumerKey</span>
+                        }
+                        <input type="text" id="consumerKeyInput" name="ConsumerKey" value="@Model.ConnectionAuth.ConsumerKey" style="display: none;" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Consumer Secret</td>
+                    <td>
+                        @if (string.IsNullOrEmpty(Model.ConnectionAuth.ConsumerSecret) || Model.ConnectionAuth.ConsumerSecret == "None")
+                        {
+                            <span id="consumerSecretSpan">Not Set</span>
+                        }
+                        else
+                        {
+                            <span id="consumerSecretSpan">@Model.ConnectionAuth.ConsumerSecret</span>
+                        }
+                        <input type="text" id="consumerSecretInput" name="ConsumerSecret" value="@Model.ConnectionAuth.ConsumerSecret" style="display: none;" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="mt-3">
+            <input type="hidden" name="userName" value="@Model.UserName"/>
+            <button type="submit" id="submitButton" style="display: none;" class="btn btn-success">Submit</button>
         </div>
-        <div>
-            @if (string.IsNullOrEmpty(Model.ConnectionAuth.ConsumerSecret) || Model.ConnectionAuth.ConsumerSecret == "None")
-            {
-                <span>Consumer Secret: Not Set</span>
-            }
-            else
-            {
-                <span>Consumer Secret: @Model.ConnectionAuth.ConsumerSecret</span>
-            }
-        </div>
-    </div>
+    </form>
 </div>
+
+<script>
+    $(document).ready(function () {
+            $("#editButton").click(function () {
+                $(this).hide();
+                $("#consumerKeySpan, #consumerSecretSpan").hide();
+                $("#consumerKeyInput, #consumerSecretInput, #submitButton").show();
+            });
+        });
+</script>
