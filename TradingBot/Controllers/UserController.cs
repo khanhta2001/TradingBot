@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using TradingBotAPI.Models;
 using MongoDB.Bson.Serialization;
+using Newtonsoft.Json.Linq;
 
 namespace TradingBot.Controllers
 {
@@ -173,17 +174,31 @@ namespace TradingBot.Controllers
 
             if (!connectionResponse.IsSuccessStatusCode) return View("Error");
             var connectionContent = await connectionResponse.Content.ReadAsStringAsync();
-    
-            // Deserialize the JSON to a single UserAccount object
-            var connectionData = BsonSerializer.Deserialize<Account>(connectionContent);
-            var userAccount = new Account()
+            var jsonObject = JObject.Parse(connectionContent);
+            var oauthToken = jsonObject["OauthToken"].ToString();
+            var oauthSecret = jsonObject["OauthSecret"].ToString();
+            var authorizationUrl = jsonObject["AuthorizationUrl"].ToString();
+            
+            return Json(new { OauthToken = oauthToken, OauthSecret = oauthSecret, AuthorizationUrl = authorizationUrl });
+        }
+        
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("EditConsumerDetails")]
+        public async Task<IActionResult> VerifyCode(string userName, string consumerKey, string consumerSecret, string oauthToken, string oauthSecret, string verificationCode)
+        {
+            var client = new HttpClient();
+            var connectionAuth = new ConnectionAuth
             {
-                UserName = userName,
-                ConnectionAuth = connectionAuth
+                ConsumerKey = consumerKey,
+                ConsumerSecret = consumerSecret,
+                OAuthToken = oauthToken,
+                OAuthTokenSecret = oauthSecret,
+                VerificationCode = verificationCode
             };
-            var json = userAccount.ToJson();
+            var json = connectionAuth.ToJson();
             var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await client.PutAsync($"https://localhost:7052/AccountInfo/ChangeConsumerAuth", stringContent);
+            var response = await client.PutAsync($"https://localhost:7052/AccountInfo/PostAuthorization", stringContent);
 
             if (!response.IsSuccessStatusCode) return View("Error");
             var content = await response.Content.ReadAsStringAsync();

@@ -58,4 +58,84 @@
                 $("#consumerKeyInput, #consumerSecretInput, #submitButton").show();
             });
         });
+    
+    $("#submitButton").click(function(e){
+        e.preventDefault();
+    
+        var url = "@Url.Action("EditConsumerDetails", "User")"; 
+    
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: {
+                ConsumerKey: $("#consumerKeyInput").val(),
+                ConsumerSecret: $("#consumerSecretInput").val(),
+                UserName: $("input[name='userName']").val()
+            },
+            success: function(response){
+                showAuthPopup(response.authorizationUrl);
+            },
+            error: function(error){
+                console.error("Error occurred:", error);
+            }
+        });
+    });
+    function showAuthPopup(authorizationUrl){
+        var popupContent = `
+            <div>
+                <p>Click the link below to get your verification code:</p>
+                <a href="${authorizationUrl}" target="_blank">Authorization Link</a>
+                <br/>
+                <input type="text" id="verificationCode" placeholder="Enter verification code here" />
+                <button id="verifyButton">Verify</button>
+            </div>
+        `;
+    
+        // Assuming you use Bootstrap's modal
+        var popup = `
+            <div class="modal" tabindex="-1" role="dialog" id="authPopup">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Authorization</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            ${popupContent}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    
+        $("body").append(popup);
+        $("#authPopup").modal('show');
+    }
+    
+    $(document).on("click", "#verifyButton", function(){
+        var verificationCode = $("#verificationCode").val();
+    
+        var verifyUrl = "@Url.Action("VerifyCode", "User")";  // Replace "VerifyCodeMethod" with the name of your verification method
+    
+        $.ajax({
+            type: "POST",
+            url: verifyUrl,
+            data: {
+                VerificationCode: verificationCode
+            },
+            success: function(response){
+                if(response.verified) {  // Assuming the response contains a 'verified' boolean
+                    alert("Successfully verified!");  // You can replace this with a more elegant notification
+                } else {
+                    alert("Verification failed. Please try again.");
+                }
+            },
+            error: function(error){
+                console.error("Error occurred:", error);
+            }
+        });
+    });
+
 </script>
