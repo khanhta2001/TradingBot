@@ -27,9 +27,14 @@ Welcome to **TradingBot**, a state-of-the-art tool for stock portfolio managemen
 3. **Stock Handling**: Search, add, or delete stocks with ease. Adjust stock percentages on-the-go.
 4. **Trade & Monitor**: Kick off trades, view analytics, and keep tabs on your portfolio's health.
 
-## 🔜 Upcoming
+## 📋 Project Progress
 
-- **Web Hosting**: TradingBot is gearing up for web hosting. Soon, users can tap into its capabilities online.
+- [x] Set up the web application
+- [x] Handle user authentication through Microsoft Identity
+- [ ] Handle user authentication with ETrade through consumerKey and ConsumerSecret
+- [ ] Develop portfolio creation, edit, deletion, updation and adjustment
+- [ ] Visual representation of portfolio performance benchmarked against leading market indices
+- [ ] Host online through either Azure, AWS, or self-hosted on a computer through IIS Manager
 
 ## 🤝 Contributing
 
