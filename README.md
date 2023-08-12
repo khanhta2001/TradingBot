@@ -47,7 +47,3 @@ Stock trading is risky and can lead to the loss of capital. TradingBot is provid
 ## 📜 License
 
 This project embraces the MIT License. Refer to [LICENSE.md](LICENSE.md) for exhaustive details.
-
----
-
-Happy Trading!
