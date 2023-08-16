@@ -1,5 +1,7 @@
-﻿using System.Security.Claims;
+﻿using System.Net;
+using System.Security.Claims;
 using System.Text;
+using System.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -170,21 +172,33 @@ namespace TradingBot.Controllers
                 ConsumerSecret = consumerSecret
             };
             var client = new HttpClient();
-            var connectionResponse = await client.GetAsync($"https://localhost:7052/Connection/GetConnection?connectionAuth={connectionAuth}");
+            var connectionResponse = await client.GetAsync($"https://localhost:7052/Connection/GetConnection?ConsumerKey={consumerKey}&ConsumerSecret={consumerSecret}");
 
-            if (!connectionResponse.IsSuccessStatusCode) return View("Error");
+            if (connectionResponse.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return Json(new { isSuccess = false, ErrorMessage = "You are not authorized to access this resource." });
+            }
+            else if (connectionResponse.StatusCode == HttpStatusCode.InternalServerError)
+            {
+                return Json(new { isSuccess = false, ErrorMessage = "An unexpected error has occurred. The error has been logged and is being investigated." });
+            }
+            else if (connectionResponse.StatusCode == HttpStatusCode.BadRequest)
+            {
+                return Json(new { isSuccess = false, ErrorMessage = "The request was malformed or invalid." });
+            }
+
             var connectionContent = await connectionResponse.Content.ReadAsStringAsync();
             var jsonObject = JObject.Parse(connectionContent);
             var oauthToken = jsonObject["OauthToken"].ToString();
             var oauthSecret = jsonObject["OauthSecret"].ToString();
             var authorizationUrl = jsonObject["AuthorizationUrl"].ToString();
             
-            return Json(new { OauthToken = oauthToken, OauthSecret = oauthSecret, AuthorizationUrl = authorizationUrl });
+            return Json(new { isSuccess = true, OauthToken = oauthToken, OauthSecret = oauthSecret, AuthorizationUrl = authorizationUrl });
         }
         
         [AllowAnonymous]
         [HttpPost]
-        [Route("EditConsumerDetails")]
+        [Route("VerifyCode")]
         public async Task<IActionResult> VerifyCode(string userName, string consumerKey, string consumerSecret, string oauthToken, string oauthSecret, string verificationCode)
         {
             var client = new HttpClient();
@@ -196,12 +210,30 @@ namespace TradingBot.Controllers
                 OAuthTokenSecret = oauthSecret,
                 VerificationCode = verificationCode
             };
-            var json = connectionAuth.ToJson();
-            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await client.PutAsync($"https://localhost:7052/AccountInfo/PostAuthorization", stringContent);
+
+
+            var response = await client.GetAsync($"https://localhost:7052/Connection/PostAuthorization?ConsumerKey={consumerKey}&ConsumerSecret={consumerSecret}&OAuthToken={oauthToken}&OAuthTokenSecret={oauthSecret}&VerificationCode={verificationCode}&userName={userName}");
 
             if (!response.IsSuccessStatusCode) return View("Error");
             var content = await response.Content.ReadAsStringAsync();
+
+
+            var payload = new ConnectionAuth()
+            {
+                ConsumerKey = consumerKey,
+                ConsumerSecret = consumerSecret,
+                OAuthToken = oauthToken,
+                OAuthTokenSecret = oauthSecret,
+                VerificationCode = verificationCode
+            };
+
+            var json = payload.ToJson();
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var saveUrl = $"https://localhost:7052/Connection/SaveAuthorization?userName={userName}";
+            var saveResponse = await client.PutAsync(saveUrl, stringContent);
+
+            if (!saveResponse.IsSuccessStatusCode) return View("Error");
     
             return View("RegisterPage", content);
         }

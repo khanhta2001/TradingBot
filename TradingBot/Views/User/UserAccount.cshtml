@@ -1,4 +1,5 @@
 @model TradingBotAPI.Models.Account
+
 @{
     Layout = "_Layout";
 }
@@ -73,7 +74,14 @@
                 UserName: $("input[name='userName']").val()
             },
             success: function(response){
-                showAuthPopup(response.authorizationUrl);
+                console.log(response);
+                var AuthorizationUrl = response.authorizationUrl;
+                var isSuccess = response.isSuccess;
+                if(isSuccess){
+                    showAuthPopup(AuthorizationUrl);
+                } else {
+                    alert(response.errorMessage);
+                }
             },
             error: function(error){
                 console.error("Error occurred:", error);
@@ -81,15 +89,19 @@
         });
     });
     function showAuthPopup(authorizationUrl){
+        console.log(authorizationUrl);
         var popupContent = `
             <div>
-                <p>Click the link below to get your verification code:</p>
-                <a href="${authorizationUrl}" target="_blank">Authorization Link</a>
-                <br/>
-                <input type="text" id="verificationCode" placeholder="Enter verification code here" />
-                <button id="verifyButton">Verify</button>
-            </div>
-        `;
+                <p class="mb-3">Click the link below to get your verification code:</p>
+                <a href="${authorizationUrl}" class="btn btn-primary mb-3" target="_blank">Authorization Link</a>
+                <div class="input-group mb-3">
+                    <input type="text" id="verificationCode" class="form-control" placeholder="Enter verification code here">
+                    <div class="input-group-append">
+                        <button id="verifyButton" class="btn btn-success">Verify</button>
+                    </div>
+                </div>
+            </div>`;
+
     
         // Assuming you use Bootstrap's modal
         var popup = `
@@ -116,18 +128,28 @@
     
     $(document).on("click", "#verifyButton", function(){
         var verificationCode = $("#verificationCode").val();
-    
-        var verifyUrl = "@Url.Action("VerifyCode", "User")";  // Replace "VerifyCodeMethod" with the name of your verification method
-    
+        var consumerKey = $("#consumerKey").val();
+        var consumerSecret = $("#consumerSecret").val();
+        var OAuthToken = $("#OAuthToken").val();
+        var OAuthSecretToken = $("#OAuthSecretToken").val();
+        var userName = $("#userName").val();
+        
+        var verifyUrl = "@Url.Action("VerifyCode", "User")";
+        
         $.ajax({
             type: "POST",
             url: verifyUrl,
             data: {
-                VerificationCode: verificationCode
+                VerificationCode: verificationCode,
+                ConsumerKey: consumerKey,
+                ConsumerSecret: consumerSecret,
+                OAuthToken: OAuthToken,
+                OAuthSecretToken: OAuthSecretToken,
+                UserName: userName
             },
             success: function(response){
-                if(response.verified) {  // Assuming the response contains a 'verified' boolean
-                    alert("Successfully verified!");  // You can replace this with a more elegant notification
+                if(response.verified) {
+                    alert("Successfully verified!");
                 } else {
                     alert("Verification failed. Please try again.");
                 }
@@ -138,4 +160,7 @@
         });
     });
 
+    $(document).on('hidden.bs.modal', '#authPopup', function () {
+        location.reload(); // This will refresh the current page
+    });
 </script>
