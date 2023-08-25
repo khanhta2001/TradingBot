@@ -1,6 +1,6 @@
 using AspNetCore.Identity.Mongo;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using TradingBotAPI.Models;
+using TradingBotModels.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson.Serialization;
-using TradingBotAPI.Models;
+using TradingBotModels.Models;
 
 namespace TradingBot.Controllers
 {
