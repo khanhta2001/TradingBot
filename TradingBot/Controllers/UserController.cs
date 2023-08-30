@@ -52,8 +52,9 @@ namespace TradingBot.Controllers
         public async Task<IActionResult> Login(string username, string password)
         {
             var client = new HttpClient();
-            var userAccount = new Account()
+            var userAccount = new
             {
+                Id = ObjectId.GenerateNewId().ToString(),
                 UserName = username,
                 Email = "no one cares",
                 PasswordHash = password,
@@ -75,27 +76,33 @@ namespace TradingBot.Controllers
             if (!response.IsSuccessStatusCode) return View("Error");
             var content = await response.Content.ReadAsStringAsync();
             var user = BsonSerializer.Deserialize<Account>(content);
-            var claims = new List<Claim>
+            if (user.UserName != null)
             {
-                new Claim("UserId", "User Controller"),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Role, "User"),
-            };
-
-            var claimsIdentity = new ClaimsIdentity(
-                claims,
-                CookieAuthenticationDefaults.AuthenticationScheme);
-
-            await this.HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                new AuthenticationProperties
+                var claims = new List<Claim>
                 {
-                    IsPersistent = true,
-                    AllowRefresh = true,
-                }).ConfigureAwait(false);
+                    new Claim("UserId", "User Controller"),
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Role, "User"),
+                };
 
-            return this.RedirectToAction("HomePage", "Home");
+                var claimsIdentity = new ClaimsIdentity(
+                    claims,
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+
+                await this.HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    new AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        AllowRefresh = true,
+                    }).ConfigureAwait(false);
+                return this.RedirectToAction("HomePage", "Home");
+            }
+            else
+            {
+                return this.RedirectToAction("LoginPage", "User");
+            }
 
         }
         
@@ -115,6 +122,7 @@ namespace TradingBot.Controllers
             var client = new HttpClient();
             
             var passwordHasher = new PasswordHasher<string>();
+            password = passwordHasher.HashPassword(username, password);
             if (password != passwordConfirm)
             {
                 return View("RegisterPage");
@@ -162,12 +170,7 @@ namespace TradingBot.Controllers
         [Route("EditConsumerDetails")]
         public async Task<IActionResult> EditConsumerDetails(string userName, string consumerKey, string consumerSecret)
         {
-
-            var connectionAuth = new ConnectionAuth
-            {
-                ConsumerKey = consumerKey,
-                ConsumerSecret = consumerSecret
-            };
+            
             var client = new HttpClient();
             var connectionResponse = await client.GetAsync($"https://localhost:7052/Connection/GetConnection?ConsumerKey={consumerKey}&ConsumerSecret={consumerSecret}");
 
@@ -186,9 +189,9 @@ namespace TradingBot.Controllers
 
             var connectionContent = await connectionResponse.Content.ReadAsStringAsync();
             var jsonObject = JObject.Parse(connectionContent);
-            var oauthToken = jsonObject["OauthToken"].ToString();
-            var oauthSecret = jsonObject["OauthSecret"].ToString();
-            var authorizationUrl = jsonObject["AuthorizationUrl"].ToString();
+            var oauthToken = jsonObject["OauthToken"]?.ToString();
+            var oauthSecret = jsonObject["OauthSecret"]?.ToString();
+            var authorizationUrl = jsonObject["AuthorizationUrl"]?.ToString();
             
             return Json(new { isSuccess = true, OauthToken = oauthToken, OauthSecret = oauthSecret, AuthorizationUrl = authorizationUrl });
         }
@@ -199,16 +202,7 @@ namespace TradingBot.Controllers
         public async Task<IActionResult> VerifyCode(string userName, string consumerKey, string consumerSecret, string oauthToken, string oauthSecret, string verificationCode)
         {
             var client = new HttpClient();
-            var connectionAuth = new ConnectionAuth
-            {
-                ConsumerKey = consumerKey,
-                ConsumerSecret = consumerSecret,
-                OAuthToken = oauthToken,
-                OAuthTokenSecret = oauthSecret,
-                VerificationCode = verificationCode
-            };
-
-
+            
             var response = await client.GetAsync($"https://localhost:7052/Connection/PostAuthorization?ConsumerKey={consumerKey}&ConsumerSecret={consumerSecret}&OAuthToken={oauthToken}&OAuthTokenSecret={oauthSecret}&VerificationCode={verificationCode}&userName={userName}");
 
             if (!response.IsSuccessStatusCode) return View("Error");

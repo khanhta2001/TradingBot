@@ -25,23 +25,5 @@ namespace TradingBot.Controllers
         {
             return View();
         }
-        
-        public async Task<IActionResult> NotificationsPage()
-        {
-            return View("NotificationsPage");
-            var client = new HttpClient();
-            client.BaseAddress = new Uri("http://your-api-url.com/");
-            var response = await client.GetAsync("api/your-endpoint");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                var data = BsonSerializer.Deserialize<Portfolio>(content);
-                return View("NotificationsPage", data);
-            }
-
-            return View("Error");
-        }
-
     }   
 }

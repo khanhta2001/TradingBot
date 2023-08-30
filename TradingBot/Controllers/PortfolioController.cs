@@ -15,10 +15,13 @@ namespace TradingBot.Controllers
         [AllowAnonymous]
         [HttpGet]
         [Route("PortfolioPage")]
-        public async Task<IActionResult> PortfolioPage()
+        public async Task<IActionResult> PortfolioPage(string userName)
         {
             var client = new HttpClient();
-            var response = await client.GetAsync("https://localhost:7052/Portfolio");
+            var userResponse = await client.GetAsync($"https://localhost:7052/AccountInfo/UserAccount?userName={userName}");
+            var userContent = await userResponse.Content.ReadAsStringAsync();
+            var userData = BsonSerializer.Deserialize<Account>(userContent);
+            var response = await client.GetAsync($"https://localhost:7052/Portfolio/Portfolio?portfolioName={userData.Portfolio?.PortfolioName}");
             
             if (response.IsSuccessStatusCode)
             {
@@ -36,7 +39,10 @@ namespace TradingBot.Controllers
         public async Task<IActionResult> CreatePortfolioPage(string userName)
         {
             var client = new HttpClient();
-            var response = await client.GetAsync($"https://localhost:7052/AccountInfo/UserAccount?userName={userName}");
+            var userResponse = await client.GetAsync($"https://localhost:7052/AccountInfo/UserAccount?userName={userName}");
+            var userContent = await userResponse.Content.ReadAsStringAsync();
+            var userData = BsonSerializer.Deserialize<Account>(userContent);
+            var response = await client.GetAsync($"https://localhost:7052/Portfolio/CreatePortfolio?userName={userName}");
 
             if (!response.IsSuccessStatusCode) return View("Error");
             var content = await response.Content.ReadAsStringAsync();
