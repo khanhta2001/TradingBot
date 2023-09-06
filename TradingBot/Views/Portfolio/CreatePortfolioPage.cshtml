@@ -16,6 +16,7 @@
 }
 else
 {
+    <!-- Step 1: Enter the name of the portfolio -->
     <div class="container mt-4">
         <div id="step1">
             <h3>Step 1: Create Portfolio</h3>
@@ -25,18 +26,36 @@ else
             <div id="portfolioName" class="mb-3"></div>
             <button id="nextToStep2" class="btn btn-primary">Next</button>
         </div>
-        <!-- Step 1: Search and Select Stocks -->
+        <!-- Step 2: Search and Select Stocks -->
         <div id="step2">
             <h3>Step 2: Search for a stock</h3>
-            <div class="form-group">
-                <input id="searchResultsInput" type="text" class="form-control" placeholder="Search for a stock" />
-            </div>
-            <div id="searchResults" class="mb-3"></div>
-            <button id="backToStep1" class="btn btn-secondary">Back</button>
+            <form asp-controller="Trading" asp-action="SearchProducts" method="Get">
+                <!-- Hidden input for userName. You can set its value using server-side code or JavaScript -->
+                <input type="hidden" name="userName" id="userName" value="@User.Identity.Name" />
+                <div class="form-group">
+                    <input id="searchResultsInput" type="text" name="searchWord" class="form-control" placeholder="Search for a stock" />
+                </div>
+                <button idtype="submit" class="btn btn-primary">Next</button>
+                <div id="searchResults" class="mb-3">
+                    <table id="searchResultsTable" class="table table-bordered table-striped d-none">
+                        <thead>
+                            <tr>
+                                <th>Stock Symbol</th>
+                                <th>Product Name</th>
+                                <th>Current Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+            <button id="backToStep1" type="button" class="btn btn-secondary">Back</button>
             <button id="nextToStep3" class="btn btn-primary">Next</button>
         </div>
 
-        <!-- Step 2: Review Selected Stocks and Input Numbers -->
+        <!-- Step 3: Review Selected Stocks and Input Numbers -->
         <div id="step3" style="display: none;">
             <h3>Step 3: Review Selected Stocks</h3>
 
@@ -46,7 +65,7 @@ else
             </div>
         </div>
 
-        <!-- Step 3: Confirm and Submit -->
+        <!-- Step 4: Confirm and Submit -->
         <div id="step4" style="display: none;">
             <h3>Step 4: Confirmation</h3>
 

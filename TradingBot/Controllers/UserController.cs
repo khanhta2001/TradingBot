@@ -121,12 +121,11 @@ namespace TradingBot.Controllers
         {
             var client = new HttpClient();
             
-            var passwordHasher = new PasswordHasher<string>();
-            password = passwordHasher.HashPassword(username, password);
             if (password != passwordConfirm)
             {
                 return View("RegisterPage");
             }
+            
             var userAccount = new Account()
             {
                 UserName = username,
@@ -152,7 +151,11 @@ namespace TradingBot.Controllers
                 return this.RedirectToAction("LoginPage", "User");
             }
 
-            return View("RegisterPage");
+            var errorMessage = new ErrorResponse()
+            {
+                ErrorMessage = "Unable to authenticate with the server."
+            };
+            return View("RegisterPage", errorMessage);
         }
         
         [AllowAnonymous]
@@ -226,7 +229,7 @@ namespace TradingBot.Controllers
 
             if (!saveResponse.IsSuccessStatusCode) return View("Error");
     
-            return View("RegisterPage", content);
+            return Ok(content);
         }
     }   
 }
