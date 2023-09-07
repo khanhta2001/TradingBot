@@ -11,6 +11,13 @@
     <div class="mb-3 d-flex justify-content-end">
         <button id="editButton" class="btn btn-primary">Edit</button>
     </div>
+    <div>
+        <p>
+            If you do not have consumerKey and consumerSecret, don't worry, you can go this page <a href="https://developer.etrade.com/getting-started">Here</a>
+            to get your consumerKey and consumerSecret. Remember, you need to have ETrade Account first and my website will not use your consumerKey and consumerSecret for any other purpose
+            besides authenticating your account.
+        </p>
+    </div>
     <form method="post" action="@Url.Action("EditConsumerDetails", "User")">
         <table class="table">
             <tbody>
@@ -160,15 +167,12 @@
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title" id="authPopupLabel">Authorization</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true" class="text-white">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
                         ${popupContent}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary">Authorize</button>
                     </div>
                 </div>
