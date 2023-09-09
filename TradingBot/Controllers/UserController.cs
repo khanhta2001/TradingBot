@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -206,30 +207,18 @@ namespace TradingBot.Controllers
         {
             var client = new HttpClient();
             
-            var response = await client.GetAsync($"https://localhost:7052/Connection/PostAuthorization?ConsumerKey={consumerKey}&ConsumerSecret={consumerSecret}&OAuthToken={oauthToken}&OAuthTokenSecret={oauthSecret}&VerificationCode={verificationCode}&userName={userName}");
+            var encodedConsumerKey = HttpUtility.UrlEncode(consumerKey);
+            var encodedConsumerSecret = HttpUtility.UrlEncode(consumerSecret);
+            var encodedOAuthToken = HttpUtility.UrlEncode(oauthToken);
+            var encodedOAuthSecret = HttpUtility.UrlEncode(oauthSecret);
+            var encodedVerificationCode = HttpUtility.UrlEncode(verificationCode);
+            var encodedUserName = HttpUtility.UrlEncode(userName);            
+            
+            var response = await client.GetAsync($"https://localhost:7052/Connection/PostAuthorization?ConsumerKey={encodedConsumerKey}&ConsumerSecret={encodedConsumerSecret}&OAuthToken={encodedOAuthToken}&OAuthTokenSecret={encodedOAuthSecret}&VerificationCode={encodedVerificationCode}&userName={encodedUserName}");
 
             if (!response.IsSuccessStatusCode) return View("Error");
-            var content = await response.Content.ReadAsStringAsync();
-
-
-            var payload = new ConnectionAuth()
-            {
-                ConsumerKey = consumerKey,
-                ConsumerSecret = consumerSecret,
-                OAuthToken = oauthToken,
-                OAuthTokenSecret = oauthSecret,
-                VerificationCode = verificationCode
-            };
-
-            var json = payload.ToJson();
-            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var saveUrl = $"https://localhost:7052/Connection/SaveAuthorization?userName={userName}";
-            var saveResponse = await client.PutAsync(saveUrl, stringContent);
-
-            if (!saveResponse.IsSuccessStatusCode) return View("Error");
-    
-            return Ok(content);
+            
+            return Ok();
         }
     }   
 }
