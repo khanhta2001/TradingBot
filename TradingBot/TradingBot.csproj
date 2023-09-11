@@ -9,6 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Highsoft.Highcharts" Version="11.1.0.1" />
+        <PackageReference Include="Highsoft.Highstock" Version="11.1.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.12" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.12" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.12" />

@@ -62,5 +62,22 @@ namespace TradingBot.Controllers
     
             return Ok(); 
         }
+        
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("StockData")]
+        public async Task<IActionResult> StockData(string stockName)
+        {
+            var demoData = new List<List<double>>
+            {
+                new List<double> { DateTime.UtcNow.AddMonths(-1).Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds, 100 },
+                new List<double> { DateTime.UtcNow.AddDays(-3 * 7).Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds, 105 }, // 3 weeks ago
+                new List<double> { DateTime.UtcNow.AddDays(-2 * 7).Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds, 103 }, // 2 weeks ago
+                new List<double> { DateTime.UtcNow.AddDays(-7).Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds, 108 }, // 1 week ago
+                new List<double> { DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds, 110 }
+            };
+
+            return Json(demoData);
+        }
     }   
 }

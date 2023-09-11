@@ -60,6 +60,12 @@
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
+    $(document).ready(function() {
+        if (sessionStorage.getItem("authenticated") === "true") {
+            alert("Successfully authenticated!");
+            sessionStorage.removeItem("authenticated"); // Clear the flag
+        }
+    });
     var oauthToken;
     var oauthSecretToken;
     $(document).ready(function() {
@@ -120,8 +126,6 @@
         var verificationCode = $("#verificationCode").val();
         var consumerKey = $("#consumerKeyInput").val();
         var consumerSecret = $("#consumerSecretInput").val();
-        console.log(oauthToken);
-        console.log(oauthSecretToken);
         var userName = "@Model.UserName";
         var verifyUrl = "@Url.Action("VerifyCode", "User")";
         $.ajax({
@@ -136,8 +140,9 @@
                 UserName: userName
             },
             success: function(response) {
-                if (response.verified) {
-                    alert("Successfully verified!");
+                if (response.isSuccess) {
+                    sessionStorage.setItem("authenticated", "true");
+                    window.location.href = "User/UserAccount?userName=" + userName;
                 } else {
                     alert("Verification failed. Please try again.");
                 }

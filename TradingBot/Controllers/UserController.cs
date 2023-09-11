@@ -207,18 +207,21 @@ namespace TradingBot.Controllers
         {
             var client = new HttpClient();
             
-            var encodedConsumerKey = HttpUtility.UrlEncode(consumerKey);
-            var encodedConsumerSecret = HttpUtility.UrlEncode(consumerSecret);
-            var encodedOAuthToken = HttpUtility.UrlEncode(oauthToken);
-            var encodedOAuthSecret = HttpUtility.UrlEncode(oauthSecret);
-            var encodedVerificationCode = HttpUtility.UrlEncode(verificationCode);
-            var encodedUserName = HttpUtility.UrlEncode(userName);            
-            
-            var response = await client.GetAsync($"https://localhost:7052/Connection/PostAuthorization?ConsumerKey={encodedConsumerKey}&ConsumerSecret={encodedConsumerSecret}&OAuthToken={encodedOAuthToken}&OAuthTokenSecret={encodedOAuthSecret}&VerificationCode={encodedVerificationCode}&userName={encodedUserName}");
+            var connectionAuth = new ConnectionAuth()
+            {
+                ConsumerKey = consumerKey,
+                ConsumerSecret = consumerSecret,
+                OAuthToken = oauthToken,
+                OAuthTokenSecret = oauthSecret,
+                VerificationCode = verificationCode
+            };
+            var json = connectionAuth.ToJson();
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await client.PostAsync($"https://localhost:7052/Connection/PostAuthorization?userName={userName}", stringContent);
 
             if (!response.IsSuccessStatusCode) return View("Error");
             
-            return Ok();
+            return Json(new { isSuccess = true});
         }
     }   
 }

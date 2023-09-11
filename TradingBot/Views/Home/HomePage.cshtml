@@ -1,7 +1,9 @@
 ﻿@{
     Layout = "_Layout";
 }
-
+@model TradingBotModels.Models.Account
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
 <section class="portfolio-section">
     <header>
         <h1>Automated Portfolio</h1>
@@ -17,4 +19,155 @@
             I am neither a financial advisor nor am I promising portfolio growth. My intent was to develop an automated solution, saving myself from hiring a financial investor or incurring fees on other platforms.
         </p>
     </article>
+    <!-- Reverify Token Button -->
+    @if(User.Identity.IsAuthenticated)
+    {
+        if (Model.ConnectionAuth.ConsumerKey != "None" && Model.ConnectionAuth.ConsumerSecret != "None")
+        {
+            <div class="text-center mt-4">
+                <button id="reverifyButton" class="btn btn-primary" data-consumer-key="@Model.ConnectionAuth.ConsumerKey" data-consumer-secret="@Model.ConnectionAuth.ConsumerSecret">Reverify Token</button>
+            </div>
+        }
+    }
+    <!-- Stock Section -->
+    <section class="stock-section mt-5">
+        <h3 class="text-center">Stocks Overview</h3>
+        <div class="row mt-3">
+            <div class="col-md-3 offset-md-1" id="stock1" style="height: 300px;"></div>
+            <div class="col-md-3" id="stock2" style="height: 300px;"></div>
+            <div class="col-md-3" id="stock3" style="height: 300px;"></div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-3 offset-md-2" id="stock4" style="height: 300px;"></div>
+            <div class="col-md-3" id="stock5" style="height: 300px;"></div>
+        </div>
+    </section>
 </section>
+
+
+
+<script>
+    var oauthToken;
+    var oauthSecretToken;
+    $(document).ready(function() {
+        $('#reverifyButton').click(function() {
+            var consumerKey = $(this).data('consumer-key');
+            var consumerSecret = $(this).data('consumer-secret');
+            var userName = "@Model.UserName";
+            $.ajax({
+                url: '@Url.Action("EditConsumerDetails", "User")',
+                type: 'POST',
+                data: {
+                    consumerKey: consumerKey,
+                    consumerSecret: consumerSecret,
+                    UserName: userName
+                },
+                success: function(response) {
+                    var AuthorizationUrl = response.authorizationUrl;
+                    var isSuccess = response.isSuccess;
+                    if (isSuccess) {
+                        oauthToken = response.oauthToken;
+                        oauthSecretToken = response.oauthSecret;
+                        showAuthPopup(AuthorizationUrl);
+                    } else {
+                        alert(response.errorMessage);
+                    }
+                },
+                error: function(error) {
+                    console.error("Error occurred:", error);
+                }
+            });
+        });
+    });
+    function verifyCode() {
+        var verificationCode = $("#verificationCode").val();
+        var consumerKey = $(this).data('consumer-key');
+        var consumerSecret = $(this).data('consumer-secret');
+        var userName = "@Model.UserName";
+        var verifyUrl = "@Url.Action("VerifyCode", "User")";
+    
+        $.ajax({
+            type: "POST",
+            url: verifyUrl,
+            data: {
+                VerificationCode: verificationCode,
+                ConsumerKey: consumerKey,
+                ConsumerSecret: consumerSecret,
+                OAuthToken: oauthToken,
+                oauthSecret: oauthSecretToken,
+                UserName: userName
+            },
+            success: function(response) {
+                if (response.isSuccess) {
+                    alert("Verification successful!");
+                } else {
+                    alert("Verification failed. Please try again.");
+                }
+            },
+            error: function(error) {
+                console.error("Error occurred:", error);
+            }
+        });
+    }
+    
+    $(document).ready(function() {
+        $("#verifyButton").click(verifyCode);
+    });
+    $(document).ready(function() {
+        var stockNames = ["stock1", "stock2", "stock3", "stock4", "stock5"];
+        var url = "@Url.Action("StockData", "Trading")";
+        stockNames.forEach(function(stockName) {
+            $.get(url + '?stockName=' + stockName, function(data) {
+                Highcharts.stockChart(stockName, {
+                    title: {
+                        text: stockName
+                    },
+                    series: [{
+                        name: stockName,
+                        data: data,
+                        tooltip: {
+                            valueDecimals: 2
+                        }
+                    }]
+                });
+            });
+        });
+    });
+    
+    function showAuthPopup(authorizationUrl){
+        var popupContent = `
+            <div>
+                <p class="mb-3">Click the link below to get your verification code:</p>
+                <a href="${authorizationUrl}" class="btn btn-primary mb-3" target="_blank">Authorization Link</a>
+                <div class="input-group mb-3">
+                    <input type="text" id="verificationCode" class="form-control" placeholder="Enter verification code here">
+                    <div class="input-group-append">
+                        <button id="verifyButton" class="btn btn-success">Verify</button>
+                    </div>
+                </div>
+            </div>`;
+
+        var popup = `
+        <div class="modal fade" id="authPopup" tabindex="-1" role="dialog" aria-labelledby="authPopupLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="authPopupLabel">Authorization</h5>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        ${popupContent}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary">Authorize</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+        
+
+        $("body").append(popup);
+        $("#authPopup").modal('show');
+    }
+</script>

@@ -16,8 +16,22 @@ namespace TradingBot.Controllers
         [AllowAnonymous]
         [HttpGet]
         [Route("")]
-        public IActionResult HomePage()
+        public async Task<IActionResult> HomePage()
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                var client = new HttpClient();
+                var response = await client.GetAsync($"https://localhost:7052/AccountInfo/UserAccount?userName={User.Identity.Name}");
+
+                if (!response.IsSuccessStatusCode) return View("Error");
+                var content = await response.Content.ReadAsStringAsync();
+    
+                // Deserialize the JSON to a single UserAccount object
+                var data = BsonSerializer.Deserialize<Account>(content);
+            
+                return View(data);
+            }
+
             return View();
         }
         
