@@ -31,8 +31,8 @@ Welcome to **TradingBot**, a state-of-the-art tool for stock portfolio managemen
 
 - [x] Set up the web application
 - [x] Handle user authentication through Microsoft Identity
-- [ ] Handle user authentication with ETrade through consumerKey and ConsumerSecret
-- [ ] Develop portfolio creation, edit, deletion, updation and adjustment
+- [x] Handle user authentication with ETrade through consumerKey and ConsumerSecret
+- [x] Develop portfolio creation, edit, deletion, updation and adjustment
 - [ ] Visual representation of portfolio performance benchmarked against leading market indices
 - [ ] Host online through either Azure, AWS, or self-hosted on a computer through IIS Manager
 
